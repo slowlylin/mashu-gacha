@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>誠懇敷衍扭蛋機</title>
+  <style>
+    body {
+      background-color: #fffbe6;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      padding: 2em;
+    }
+    h1 {
+      color: #ff6f91;
+    }
+    button {
+      background-color: #ffe4ec;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #quoteBox {
+      margin-top: 20px;
+      font-size: 18px;
+      padding: 15px;
+      background-color: #fff;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      min-height: 50px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎁 誠懇敷衍扭蛋機</h1>
+  <p>點一下，獲得一句溫柔敷衍的安慰話：</p>
+  <button onclick="rollQuote()">點我扭蛋</button>
+  <div id="quoteBox">🌸 這裡會顯示安慰語句 🌸</div>
+
+  <script>
+    const quotes = [
+      "我知道你現在很不容易，但你還是撐到了今天，真的很棒。",
+      "聽起來真的很辛苦，我在這裡陪你一起扛一下，好不好？",
+      "你有願意說出來，就已經是勇敢的第一步了 🐣",
+      "事情再難，也不會一直都這樣對你，天總會亮的 ☀️",
+      "我雖然幫不上什麼忙，但我在這裡，認真地聽著你。",
+      "換個角度想想……好啦我知道你現在沒心情換角度，抱一下再說 🐻",
+      "先深呼吸，我們慢慢來，不急的 🍃",
+      "你現在的狀態不是你的全部，你只是累了而已。",
+      "你不是一個人，你有我這個超誠懇敷衍機在 💪",
+      "可以哭，也可以罵，等一下我們再一起笑 😊"
+    ];
+
+    function rollQuote() {
+      const randomIndex = Math.floor(Math.random() * quotes.length);
+      document.getElementById("quoteBox").innerText = quotes[randomIndex];
+    }
+  </script>
+</body>
+</html>
