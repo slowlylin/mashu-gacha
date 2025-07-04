@@ -230,18 +230,23 @@ const encourageQuotes = [
   "如果船長的最高目標是保護船不受傷害，那他就會永遠把船停在港口裡～",
   "加油～加油～努力～勇往直前～小麻糬為你打氣～"
 ];
-    const speech = document.getElementById("speech");
-    const gachaPraise = document.getElementById("gachaPraise");
-    const gachaComfort = document.getElementById("gachaComfort");
-    function handleGacha(quotes, gacha) {
-      const q = quotes[Math.floor(Math.random() * quotes.length)];
-      speech.innerText = q;
-      speech.style.display = "inline-block";
-      gacha.classList.add("shake");
-      setTimeout(() => gacha.classList.remove("shake"), 400);
-    }
-    gachaPraise.addEventListener("click", () => handleGacha(praiseQuotes, gachaPraise));
-    gachaComfort.addEventListener("click", () => handleGacha(comfortQuotes, gachaComfort));
+const speech = document.getElementById("speech");
+const gachaPraise = document.getElementById("gachaPraise");
+const gachaComfort = document.getElementById("gachaComfort");
+const gachaEncourage = document.getElementById("gachaEncourage");
+
+function handleGacha(quotes, gacha) {
+  const q = quotes[Math.floor(Math.random() * quotes.length)];
+  speech.innerText = q;
+  speech.style.display = "inline-block";
+  gacha.classList.add("shake");
+  setTimeout(() => gacha.classList.remove("shake"), 400);
+}
+
+gachaPraise.addEventListener("click", () => handleGacha(praiseQuotes, gachaPraise));
+gachaComfort.addEventListener("click", () => handleGacha(comfortQuotes, gachaComfort));
+gachaEncourage.addEventListener("click", () => handleGacha(encourageQuotes, gachaEncourage));
+
   </script>
 </body>
 </html>
