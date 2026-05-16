@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>關係解除申請系統</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", sans-serif;
+  background: #f7f6f2;
+  color: #1a1a1a;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+}
+.wrap { max-width: 560px; margin: 0 auto; }
+.stamp-area { display: flex; justify-content: flex-end; margin-bottom: 0.5rem; }
+.stamp {
+  display: inline-block;
+  border: 3px solid #c0392b;
+  color: #c0392b;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 4px;
+  transform: rotate(-12deg);
+  letter-spacing: 2px;
+  opacity: 0.85;
+}
+.doc-header {
+  border: 0.5px solid #ccc;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  background: #efede7;
+}
+.doc-title { font-size: 16px; font-weight: 500; letter-spacing: 3px; text-align: center; margin-bottom: 0.4rem; }
+.doc-sub { font-size: 11px; color: #666; text-align: center; letter-spacing: 1px; }
+.doc-no { font-size: 10px; color: #999; margin-top: 0.4rem; }
+.section { margin-bottom: 1.5rem; }
+.section-label { font-size: 11px; color: #777; letter-spacing: 2px; margin-bottom: 0.6rem; border-bottom: 0.5px solid #ddd; padding-bottom: 4px; }
+.sign-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.sign-btn {
+  padding: 8px 4px; font-size: 12px;
+  border: 0.5px solid #ddd; border-radius: 8px;
+  background: #fff; color: #1a1a1a;
+  cursor: pointer; text-align: center;
+  transition: background 0.15s;
+}
+.sign-btn:hover { background: #efede7; }
+.sign-btn.selected { border-color: #999; background: #efede7; font-weight: 500; }
+.reason-list { display: flex; flex-direction: column; gap: 6px; }
+.reason-opt {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 9px 12px; border: 0.5px solid #ddd; border-radius: 8px;
+  cursor: pointer; background: #fff; font-size: 13px; color: #1a1a1a; text-align: left;
+  transition: background 0.15s;
+}
+.reason-opt:hover { background: #efede7; }
+.reason-opt.selected { border-color: #999; background: #efede7; }
+.reason-code { font-weight: 500; min-width: 18px; color: #888; }
+.notice-box {
+  background: #efede7; border-left: 2px solid #bbb;
+  padding: 8px 12px; font-size: 11px; color: #777; line-height: 1.7; margin-bottom: 1.25rem;
+}
+.submit-btn {
+  width: 100%; padding: 11px; font-size: 14px; letter-spacing: 2px;
+  border: 0.5px solid #bbb; border-radius: 8px;
+  background: #fff; color: #1a1a1a; cursor: pointer; transition: background 0.15s;
+}
+.submit-btn:hover { background: #efede7; }
+.loading-msg { text-align: center; font-size: 13px; color: #666; padding: 2rem 0; display: none; }
+.spinner {
+  display: inline-block; width: 14px; height: 14px;
+  border: 2px solid #ddd; border-top-color: #888;
+  border-radius: 50%; animation: spin 0.8s linear infinite;
+  vertical-align: middle; margin-right: 8px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.result-card {
+  border: 0.5px solid #ccc; border-radius: 12px;
+  padding: 1.5rem; background: #fff; display: none;
+}
+.result-title { font-size: 14px; font-weight: 500; letter-spacing: 2px; margin-bottom: 1rem; text-align: center; }
+.result-msg {
+  font-size: 13px; color: #666; line-height: 1.9; text-align: center;
+  margin-bottom: 1.25rem; border-bottom: 0.5px solid #eee; padding-bottom: 1rem; white-space: pre-line;
+}
+.bill-title { font-size: 11px; letter-spacing: 2px; color: #777; margin-bottom: 0.75rem; }
+.bill-row {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 12px; padding: 6px 0; border-bottom: 0.5px dashed #eee; color: #1a1a1a;
+}
+.bill-qty { color: #888; }
+.extra-block { margin-top: 0.75rem; display: none; }
+.extra-label { font-size: 11px; color: #888; letter-spacing: 1px; margin-bottom: 0.4rem; }
+.extra-row {
+  display: flex; justify-content: space-between;
+  font-size: 12px; padding: 6px 0; border-bottom: 0.5px dashed #eee; color: #888;
+}
+.total-row { display: flex; justify-content: space-between; font-size: 13px; font-weight: 500; margin-top: 0.75rem; padding-top: 0.5rem; }
+.stamp-final { text-align: center; margin-top: 1rem; }
+.case-no { font-size: 10px; color: #aaa; text-align: right; margin-top: 1rem; letter-spacing: 1px; }
+
+.award-card {
+  display: none;
+  border: 2px solid #b8860b;
+  border-radius: 12px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  background: #fffdf5;
+  margin-top: 0;
+}
+.award-top { font-size: 11px; letter-spacing: 3px; color: #b8860b; margin-bottom: 0.75rem; }
+.award-title { font-size: 28px; font-weight: 500; letter-spacing: 4px; color: #7a5c00; margin-bottom: 0.5rem; }
+.award-sub { font-size: 12px; color: #b8860b; letter-spacing: 2px; margin-bottom: 1rem; }
+.award-body { font-size: 12px; color: #888; line-height: 1.9; margin-bottom: 1.25rem; }
+.award-seal {
+  display: inline-block;
+  border: 2px solid #b8860b;
+  color: #b8860b;
+  font-size: 12px;
+  padding: 6px 16px;
+  border-radius: 4px;
+  letter-spacing: 2px;
+  transform: rotate(-5deg);
+}
+.award-case { font-size: 10px; color: #bbb; margin-top: 1rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div id="form-section">
+    <div class="stamp-area"><span class="stamp">申請中</span></div>
+    <div class="doc-header">
+      <div class="doc-title">關係解除申請書</div>
+      <div class="doc-sub">民事感情事務處　情感終止部　第三科</div>
+      <div class="doc-no">表單編號：REL-TERM-2026　　版次：第十四版（修正）　　申請人姓名欄：已廢除</div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">壹、申請人星座</div>
+      <div class="sign-grid">
+        <button class="sign-btn" data-sign="牡羊" onclick="selectSign(this)">♈ 牡羊</button>
+        <button class="sign-btn" data-sign="金牛" onclick="selectSign(this)">♉ 金牛</button>
+        <button class="sign-btn" data-sign="雙子" onclick="selectSign(this)">♊ 雙子</button>
+        <button class="sign-btn" data-sign="巨蟹" onclick="selectSign(this)">♋ 巨蟹</button>
+        <button class="sign-btn" data-sign="獅子" onclick="selectSign(this)">♌ 獅子</button>
+        <button class="sign-btn" data-sign="處女" onclick="selectSign(this)">♍ 處女</button>
+        <button class="sign-btn" data-sign="天秤" onclick="selectSign(this)">♎ 天秤</button>
+        <button class="sign-btn" data-sign="天蠍" onclick="selectSign(this)">♏ 天蠍</button>
+        <button class="sign-btn" data-sign="射手" onclick="selectSign(this)">♐ 射手</button>
+        <button class="sign-btn" data-sign="摩羯" onclick="selectSign(this)">♑ 摩羯</button>
+        <button class="sign-btn" data-sign="水瓶" onclick="selectSign(this)">♒ 水瓶</button>
+        <button class="sign-btn" data-sign="雙魚" onclick="selectSign(this)">♓ 雙魚</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">貳、申請事由（單選）</div>
+      <div class="reason-list">
+        <button class="reason-opt" data-code="A" onclick="selectReason(this)">
+          <span class="reason-code">甲</span><span>我很冷淡，回應不符您的需求</span>
+        </button>
+        <button class="reason-opt" data-code="B" onclick="selectReason(this)">
+          <span class="reason-code">乙</span><span>我外觀不符您的需求</span>
+        </button>
+        <button class="reason-opt" data-code="C" onclick="selectReason(this)">
+          <span class="reason-code">丙</span><span>我銀行帳戶不符您的需求</span>
+        </button>
+        <button class="reason-opt" data-code="D" onclick="selectReason(this)">
+          <span class="reason-code">丁</span><span>我脾氣不好，不符您的需求</span>
+        </button>
+        <button class="reason-opt" data-code="E" onclick="selectReason(this)">
+          <span class="reason-code">戊</span><span>其他（無需填寫，其實我不在乎）</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="notice-box">
+      ※ 申請人姓名欄已於本版次正式廢除，理由：反正不在乎。<br>
+      ※ 所有損耗費用由對方精神上承擔，本人實收。
+    </div>
+
+    <button class="submit-btn" onclick="submitForm()">送出申請　→</button>
+  </div>
+
+  <div class="loading-msg" id="loading">
+    <div><span class="spinner"></span>審核中，請稍候⋯⋯</div>
+    <div style="font-size:11px; color:#aaa; margin-top:8px;">系統正在調閱對方的精神狀態紀錄</div>
+  </div>
+
+  <div class="result-card" id="result-card">
+    <div class="result-title">民事感情事務處　核准通知</div>
+    <div class="result-msg">您好，已收到您的申請。
+感謝您這段時間的陪伴與支持，
+祝您未來一切順心愉快。</div>
+
+    <div class="bill-title">附件一：本次關係損耗結算明細</div>
+    <div class="bill-row"><span>家族排列</span><span class="bill-qty">×2</span></div>
+    <div class="bill-row"><span>情緒修復</span><span class="bill-qty">×3</span></div>
+    <div class="bill-row"><span>腦內 debug</span><span class="bill-qty">×17</span></div>
+    <div class="bill-row"><span>對人類失去信心</span><span class="bill-qty">×1</span></div>
+
+    <div class="extra-block" id="extra-block">
+      <div class="extra-label" id="extra-label"></div>
+      <div class="extra-row">
+        <span id="extra-name"></span>
+        <span id="extra-qty"></span>
+      </div>
+    </div>
+
+    <div class="total-row">
+      <span>總損耗</span>
+      <span>無法以金錢衡量</span>
+    </div>
+    <div class="stamp-final">
+      <span class="stamp" style="color:#2d6a4f; border-color:#2d6a4f; transform:rotate(-5deg); display:inline-block; margin-top:0.75rem;">核准</span>
+    </div>
+    <div class="case-no" id="case-no"></div>
+  </div>
+
+  <div class="award-card" id="award-card">
+    <div class="award-top">民事感情事務處　特別表彰</div>
+    <div class="award-title">最佳男友</div>
+    <div class="award-sub">榮譽獎狀</div>
+    <div class="award-body">
+      茲證明　申請人　星座優良、品行端正、<br>
+      情緒穩定、財務透明、不需要精神餵奶，<br>
+      實屬難得之珍稀物種。<br><br>
+      本處特此表彰，並退還全數損耗費用。<br>
+      祝　繼續優秀。
+    </div>
+    <div class="award-seal">蓋章認證</div>
+    <div class="award-case" id="award-case-no"></div>
+  </div>
+
+</div>
+<script>
+let selectedSign = null;
+let selectedCode = null;
+
+const signConfig = {
+  '雙子': { name: '精神混亂附加費', qty: 6 },
+  '天秤': { name: '精神混亂附加費', qty: 3 },
+  '水瓶': { name: '精神混亂附加費', qty: 3 },
+  '牡羊': { name: '精神餵奶費', qty: 6 },
+  '巨蟹': { name: '精神餵奶費', qty: 6 },
+  '雙魚': { name: '精神餵奶費', qty: 6 },
+  '金牛': { name: '監禁費', qty: 2 },
+  '獅子': { name: '監禁費', qty: 5 },
+  '天蠍': { name: '監禁費', qty: 9 },
+  '射手': { name: '徵信社找人費', qty: 3 },
+  '摩羯': null,
+  '處女': null,
+};
+
+function selectSign(el) {
+  document.querySelectorAll('.sign-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedSign = el.dataset.sign;
+}
+function selectReason(el) {
+  document.querySelectorAll('.reason-opt').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedCode = el.dataset.code;
+}
+function submitForm() {
+  if (!selectedSign) { alert('請選擇星座'); return; }
+  if (!selectedCode) { alert('請選擇申請事由'); return; }
+  document.getElementById('form-section').style.display = 'none';
+  document.getElementById('loading').style.display = 'block';
+  setTimeout(showResult, 2000);
+}
+function showResult() {
+  document.getElementById('loading').style.display = 'none';
+  const caseNum = 'REL-' + Date.now().toString().slice(-8);
+  const cfg = signConfig[selectedSign];
+
+  if (cfg === null) {
+    document.getElementById('award-case-no').innerText = '案號：' + caseNum + '　　承辦員：系統自動核發';
+    document.getElementById('award-card').style.display = 'block';
+  } else {
+    if (cfg) {
+      document.getElementById('extra-label').innerText = '▸ ' + cfg.name;
+      document.getElementById('extra-name').innerText = cfg.name;
+      document.getElementById('extra-qty').innerText = '×' + cfg.qty;
+      document.getElementById('extra-block').style.display = 'block';
+    }
+    document.getElementById('case-no').innerText = '案號：' + caseNum + '　　承辦員：系統自動核發';
+    document.getElementById('result-card').style.display = 'block';
+  }
+}
+</script>
+</body>
+</html>
