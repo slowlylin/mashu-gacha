@@ -1,252 +1,35 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="先把自己接回來，再處理世界。小麻糬陪你找下一步。"
+    />
+    <title>小麻糬生活急救站｜怎麼了？</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="site-shell">
+      <div class="petal petal-one" aria-hidden="true"></div>
+      <div class="petal petal-two" aria-hidden="true"></div>
 
-<!DOCTYPE html>
-<html lang="zh-Hant">
-<head>
-  <meta charset="UTF-8" />
-  <title>小麻糬扭蛋機</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: "Noto Sans TC", sans-serif;
-      background: #fdeff3;
-      color: #e85aa2;
-      text-align: center;
-    }
-    h1 {
-      margin: 28px 0 8px;
-      font-size: 40px;
-      font-weight: 700;
-      letter-spacing: 2px;
-    }
-    #talk {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 24px;
-      flex-wrap: wrap;
-      margin-top: 12px;
-    }
-    #mashu {
-      width: 240px;
-      user-select: none;
-      pointer-events: none;
-    }
-    #speech {
-      background: #fff;
-      border: 2px solid #ff99aa;
-      border-radius: 10px;
-      padding: 12px 18px;
-      max-width: 260px;
-      box-sizing: border-box;
-      word-break: break-word;
-      text-align: center;
-      font-size: 16px;
-      line-height: 1.6;
-      box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.08);
-      display: none;
-    }
-    .gacha {
-      width: 180px;
-      margin: 24px 12px 48px;
-      cursor: pointer;
-      transition: transform 0.15s;
-    }
-    .gacha:active {
-      transform: scale(0.96);
-    }
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      20%, 60% { transform: translateX(-4px); }
-      40%, 80% { transform: translateX(4px); }
-    }
-    .shake { animation: shake 0.4s; }
-    @media (max-width: 500px) {
-      h1 { font-size: 32px; }
-      #speech { max-width: 90vw; font-size: 15px; }
-      #mashu { width: 200px; }
-    }
-  </style>
-</head>
-<body>
-  <h1>🐾 小麻糬扭蛋機</h1>
-  <div id="talk">
-    <img id="mashu" src="images/mashu.png" alt="小麻糬">
-    <div id="speech">點一下扭蛋機抽一句誇誇或安慰吧！</div>
-  </div>
-  <div>
-    <img class="gacha" id="gachaPraise" src="images/gacha_praise.png" alt="誇誇扭蛋機">
-    <img class="gacha" id="gachaComfort" src="images/gacha_comfort.png" alt="安慰扭蛋機">
-	<img class="gacha" id="gachaEncourage" src="images/gacha_encourage.png" alt="鼓勵扭蛋機">
-  </div>
-  <script>
-    const praiseQuotes = [
-  "你真的超棒棒！",
-  "今天也辛苦了，你好努力！",
-  "小麻糬最喜歡你笑的樣子了！",
-  "你就是這世界上最閃亮的星星！",
-  "怎麼可以這麼可愛！我快融化了啦！",
-  "抱一個～你是最棒的寶貝！",
-  "連小麻糬都忍不住想誇你！",
-  "你今天也超勇敢的，真的！",
-  "你光是存在就已經超棒了喔！",
-  "哇！你太厲害了吧～",
-  "你一定很受歡迎對不對？因為我特別歡迎你～",
-  "你閃亮亮的樣子，好像小星星掉到我心裡。",
-  "哇，你笑起來簡直像太陽一樣溫暖！",
-  "小麻糬都忍不住想天天誇你！",
-  "怎麼可以這麼棒啦！我要貼貼！",
-  "你就是幸福的代名詞啊～",
-  "你的努力發光到連小麻糬都眨眨眼啦！",
-  "啊啊啊，好想每天都誇你，誇不完啦！",
-  "抱緊你一下，你最棒了！",
-  "今天的你也是發光發亮的寶貝！",
-  "你是最棒噠！",
-  "你的表現最耀眼！",
-  "你好優秀哦！小麻糬崇拜你！",
-  "你迷人到小麻糬都羨慕了！",
-  "小麻糬以你為榮！",
-  "你真特別～人格魅力超強！",
-  "你的思維與眾不同！好厲害呀！",
-  "你超有品味的～審美眼光很好哦！",
-  "你的天賦不是一般人耶！",
-  "你能不能教我怎麼樣才能像你這麼迷人啊？",
-  "你今天看上去真是太有活力啦～就像個小太陽一樣！",
-  "你做得真好～",
-  "你是乖寶寶～",
-  "你的觀察力好強哦～",
-  "你的想法真有創意！",
-  "你是一個很有責任感的人～",
-  "你一定很孤獨叭？世界上這麼好的人只有你一個！",
-  "你好有自己的想法哦～",
-  "教我教我～怎麼樣才可以像你一樣閃閃發光？"
-];
+      <header class="topbar">
+        <button class="brand" id="home-button" aria-label="回到首頁">
+          <span class="brand-mark">✿</span>
+          <span>小麻糬生活急救站</span>
+        </button>
+        <a class="gacha-link" href="gacha.html">直接抽一顆</a>
+      </header>
 
-    const comfortQuotes = [
+      <section class="app-card" id="app" aria-live="polite"></section>
 
-  "迷事迷事，小麻糬在這裡陪你。",
-  "你可以難過沒關係喔～我抱抱你！",
-  "世界有點累了對不對？來，休息一下。",
-  "小麻糬幫你趕跑壞心情啦！",
-  "你已經很棒了，真的！",
-  "別怕，有我在。",
-  "你不用逞強，在我面前可以安心。",
-  "來，先給你一個小麻糬抱抱。",
-  "你所有的情緒我都接住，別擔心。",
-  "今天就放過自己，好好休息吧。",
-  "小麻糬陪你一起慢慢來，不急。",
-  "沒有人要求你要很強，小麻糬喜歡真實的你。",
-  "不管怎樣，你永遠值得被愛。",
-  "小麻糬在這裡，替你擋掉壞壞的情緒怪獸！",
-  "我知道你現在很不容易，但你還是撐到了今天，真的很棒。",
-  "聽起來真的很辛苦，我在這裡陪你一起扛一下，好不好？",
-  "你有願意說出來，就已經是勇敢的第一步了 ",
-  "事情再難，也不會一直都這樣對你，天總會亮的 ",
-  "我雖然幫不上什麼忙，但我在這裡，認真地聽著你。",
-  "換個角度想想……好啦我知道你現在沒心情換角度，抱一下再說 ",
-  "先深呼吸，我們慢慢來，不急的 ",
-  "你現在的狀態不是你的全部，你只是累了而已。",
-  "你不是一個人，你有小麻糬在! ",
-  "可以哭，也可以罵，等一下我們再一起笑 ",
-  "我一直都有在聽～有你願意說，就很棒了",
-  "欸欸欸～你這樣真的太辛苦了啦!",
-  "怎麼會這樣　不過你現在願意說，我就很開心",
-  "唉唷～小麻糬真的替你感到委屈耶！",
-  "嗚嗚～過來給我抱一下先（張開手臂）",
-  "如果換成小麻糬，一定撐不住哭哭啦……但你撐住了耶！",
-  "你都說出來了，剩下的交給世界處理就好",
-  "聽完這些，我只想說：你真的已經很努力了",
-  "乖乖～今天世界欠你一個抱抱",
-  "小麻糬挺你。",
-  "我能理解你的感受，真的很不容易。",
-  "辛苦了，你已經做得特別特別好了。",
-  "你的感覺是合理的，本來就是這樣啊。",
-  "就算現在看不到盡頭，也別忘了你不孤單。",
-  "沒關係的，你願意說出來已經很勇敢了。",
-  "小麻糬雖然幫不上什麼忙，但我願意陪你。",
-  "謝謝你願意相信我，跟我說這些。",
-  "真的辛苦你了，休息一下吧。",
-  "有時候不說話，也是一種陪伴喔。",
-  "你很重要，請別懷疑這件事。",
-  "嗯...辛苦你了，小麻糬都懂的。",
-  "我知道這真的不容易，拍拍你喔。",
-  "小麻糬一直都在聽，有你願意說，就很棒了。",
-  "有這樣的情緒很正常，小麻糬不會怪你。",
-  "世界有時候真的讓人很累，還好你撐到了現在。",
-  "雖然我不知道該怎麼回，但我會陪著你。",
-  "每個人情緒都有高低，謝謝你願意分享。",
-  "小麻糬沒有經歷過，但相信那真的很不好受捏",
-  "謝謝你願意讓小麻糬知道你需要安慰，真的好勇敢。",
-  "今天也撐過了，你好棒～！",
-  "唉……真的會讓人很難受欸。",
-  "你一定累壞了吧，這樣真的太多了。",
-  "你這樣還沒崩潰，根本神級忍耐欸！",
-  "希望接下來會慢慢好起來啦……",
-  "哭一哭也沒關係啦，明天起來再看看有什麼辦法。",
-  "聽起來真的很委屈欸。你有這樣的感覺是很自然的啊。",
-  "這種情況好難啊……不過你自己應該最知道怎樣對你才是真的好吧。"
-];
-
-const encourageQuotes = [
-  "今天也是很棒的一天哦！出發叭～",
-  "你今天沒有白過，因為你撐下來了，你真棒棒！",
-  "小麻糬看見你的努力了，你真的超厲害！",
-  "別急，我們慢慢來，但你絕對做得到！",
-  "每一步都很棒了，不用跟誰比，只要跟昨天的自己比就好！",
-  "小麻糬超崇拜現在的你，因為你在努力！",
-  "你是發光的小麻糬寶貝，不管別人看不看得見，小麻糬看得見！",
-  "今天再撐一下就好，我陪你一起撐！",
-  "你已經比你自己想像的還要勇敢了喔！",
-  "世界很大，但你在這裡就是小麻糬的全世界！",
-  "一點一點來，慢慢的也沒關係，有我陪你！",
-  "小麻糬的小手雖小，但撐得住你的難過！",
-  "這個世界因為有你才這麼漂亮～今天也要過得很精彩哦～",
-  "你可以做得到噠～",
-  "你還是小蝌蚪的時候就得了冠軍～所以你是優秀噠～",
-  "All is Well！",
-  "今天也要找到你熱愛的事情，然後努力哦～",
-  "小麻糬知道你有多好～所以你一定可以噠～",
-  "你真的很不錯～要相信你自己ㄚ～",
-  "走得慢慢的也可以ㄚ～只要你不停下腳步～",
-  "我們不能讓壞事不發生，但是可以讓它鼻要影響我們ㄚ～",
-  "一切都是體驗而已～來地球玩要快快樂樂～",
-  "成功是得你所想，幸福是享你所得～",
-  "不看自己沒有的～只看自己擁有的～就會很高興哦～",
-  "我真的太聰明了，有時候我甚至都聽不懂我自己在說什麼～",
-  "盡力而為就好，別人能做到的也不過如此。",
-  "寧願為自己做過的事後悔，也不要為沒做的事遺憾。",
-  "每天都是一個新的開始，一年就有365個新開始的機會唷~",
-  "今天的你想要成為怎麼樣的你呢？一定很美好叭？",
-  "不要盯著自己的雙腳看是否跳對了舞步，只要跳～就好了。",
-  "你身邊稱之為生活的一切是由他人創造的，他們並不比你聰明。你可以改變它，你也可以影響它～",
-  "如果你無法做偉大的事，那就以偉大的方式做小事吧～",
-  "今天只需要做到小小的事情就足夠成功啦～",
-  "失敗只是重新開始的機會，下次就會更聰明了～",
-  "你重複做什麼，你就是什麼。追求卓越不是一種行為，而是一種習慣。",
-  "只有跨越恐懼，才能得到你想要的一切～加油～鼻要害怕～",
-  "問題不是誰允許你，而是誰阻止你～",
-  "別害怕失敗，你只要做對一次就夠了～",
-  "如果船長的最高目標是保護船不受傷害，那他就會永遠把船停在港口裡～",
-  "加油～加油～努力～勇往直前～小麻糬為你打氣～"
-];
-const speech = document.getElementById("speech");
-const gachaPraise = document.getElementById("gachaPraise");
-const gachaComfort = document.getElementById("gachaComfort");
-const gachaEncourage = document.getElementById("gachaEncourage");
-
-function handleGacha(quotes, gacha) {
-  const q = quotes[Math.floor(Math.random() * quotes.length)];
-  speech.innerText = q;
-  speech.style.display = "inline-block";
-  gacha.classList.add("shake");
-  setTimeout(() => gacha.classList.remove("shake"), 400);
-}
-
-gachaPraise.addEventListener("click", () => handleGacha(praiseQuotes, gachaPraise));
-gachaComfort.addEventListener("click", () => handleGacha(comfortQuotes, gachaComfort));
-gachaEncourage.addEventListener("click", () => handleGacha(encourageQuotes, gachaEncourage));
-
-  </script>
-</body>
+      <footer>
+        <span>✿</span>
+        <p>先把自己接回來，再處理世界。</p>
+      </footer>
+    </main>
+    <script src="app.js"></script>
+  </body>
 </html>
