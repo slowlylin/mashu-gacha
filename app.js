@@ -140,7 +140,7 @@ function homeTemplate() {
   return `
     <div class="home-layout">
       <div class="character-wrap">
-        <img class="question-mochi" src="assets/mochi-question.jpg" alt="戴著花冠、歪頭詢問的小麻糬" />
+        <img class="question-mochi" src="images/mochi-question.jpg" alt="戴著花冠、歪頭詢問的小麻糬" />
         <span class="tiny-flower flower-a">✿</span>
         <span class="tiny-flower flower-b">✿</span>
       </div>
@@ -228,7 +228,7 @@ function resultTemplate() {
   const isLove = loveResult && loveResult[1] === title;
   return `
     <div class="result-layout">
-      <img class="full-mochi" src="assets/mochi-full.jpg" alt="拿著棉花糖的小麻糬" />
+      <img class="full-mochi" src="images/mochi-full.jpg" alt="拿著棉花糖的小麻糬" />
       <div class="result-panel">
         <p class="eyebrow">小麻糬的處置建議</p>
         <h2>${esc(title)}</h2>
@@ -246,7 +246,7 @@ function resultTemplate() {
 function loveAcceptTemplate() {
   return `
     <div class="result-layout">
-      <img class="full-mochi" src="assets/mochi-full.jpg" alt="拿著棉花糖的小麻糬" />
+      <img class="full-mochi" src="images/mochi-full.jpg" alt="拿著棉花糖的小麻糬" />
       <div class="result-panel">
         <p class="eyebrow">收到你的「可是」</p>
         <h2>好，你還要這段感情。</h2>
@@ -266,7 +266,7 @@ function loveChangeTemplate() {
   const showMillion = currentResult[0] === "我想改變他";
   return `
     <div class="result-layout">
-      <img class="full-mochi" src="assets/mochi-full.jpg" alt="拿著棉花糖的小麻糬" />
+      <img class="full-mochi" src="images/mochi-full.jpg" alt="拿著棉花糖的小麻糬" />
       <div class="result-panel">
         <p class="eyebrow">${esc(currentResult[0])}</p>
         <h2>${esc(title)}</h2>
