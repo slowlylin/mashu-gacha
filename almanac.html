@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<link rel="icon" type="image/png" href="/mochi.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FF14 日常行事曆</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --gold: #c9a84c;
+  --gold-light: #e8c97a;
+  --gold-dim: #8a6d2f;
+  --bg: #0d0e18;
+  --bg2: #13141f;
+  --bg3: #1a1b2e;
+  --border: rgba(201,168,76,0.25);
+  --text: #e8dfc8;
+  --text-dim: #6a6255;
+}
+
+body {
+  background: var(--bg);
+  font-family: 'Noto Sans TC', sans-serif;
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 32px 16px;
+}
+
+.cal-wrap {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  width: 100%;
+  max-width: 560px;
+}
+
+/* ── HEADER ── */
+.cal-header {
+  border-bottom: 1px solid var(--border);
+  padding: 20px 28px 16px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.cal-day-num {
+  font-family: 'Cinzel', serif;
+  font-size: 52px;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1;
+  letter-spacing: 2px;
+}
+
+.cal-month-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.cal-month {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  color: var(--gold-dim);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.cal-weekday {
+  font-size: 13px;
+  color: var(--text-dim);
+  border-left: 1px solid var(--border);
+  padding-left: 10px;
+}
+
+.et-block {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  min-width: 130px;
+  text-align: right;
+}
+
+.et-label {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  color: var(--gold-dim);
+  letter-spacing: 3px;
+  display: block;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.et-time {
+  font-family: 'Cinzel', serif;
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--gold-light);
+  letter-spacing: 1px;
+}
+
+.et-phase {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+/* ── ALERT ── */
+.alert-strip {
+  margin: 16px 24px 0;
+  background: rgba(232,151,106,0.06);
+  border: 1px solid rgba(232,151,106,0.2);
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: none;
+  align-items: center;
+  gap: 10px;
+}
+
+.alert-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #e8976a;
+  flex-shrink: 0;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.alert-text { font-size: 13px; color: #e8976a; line-height: 1.5; }
+
+/* ── SECTIONS ── */
+.section { padding: 20px 28px; }
+
+.section-label {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.divider { height: 1px; background: var(--border); margin: 0 28px; }
+
+/* ── TASKS ── */
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(201,168,76,0.06);
+  cursor: pointer;
+  transition: opacity 0.2s;
+  user-select: none;
+}
+
+.task-item:last-child { border-bottom: none; }
+.task-item.done { opacity: 0.3; }
+
+.task-check {
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--gold-dim);
+  border-radius: 3px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.task-item.done .task-check {
+  background: var(--gold-dim);
+  border-color: var(--gold-dim);
+}
+
+.checkmark {
+  display: none;
+  width: 9px;
+  height: 5px;
+  border-left: 2px solid var(--bg);
+  border-bottom: 2px solid var(--bg);
+  transform: rotate(-45deg) translate(1px, -1px);
+}
+
+.task-item.done .checkmark { display: block; }
+
+.task-name {
+  font-size: 14px;
+  color: var(--text);
+  flex: 1;
+  line-height: 1.4;
+}
+
+.task-item.done .task-name {
+  text-decoration: line-through;
+  color: var(--text-dim);
+}
+
+.task-tag {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid;
+  flex-shrink: 0;
+  letter-spacing: 0.5px;
+}
+
+.tag-daily  { color: #7ec8a0; border-color: rgba(126,200,160,0.25); background: rgba(126,200,160,0.06); }
+.tag-weekly { color: #7aadda; border-color: rgba(122,173,218,0.25); background: rgba(122,173,218,0.06); }
+.tag-event  { color: var(--gold); border-color: rgba(201,168,76,0.25); background: rgba(201,168,76,0.06); }
+
+.task-delete {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0 4px;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.task-item:hover .task-delete { opacity: 1; }
+.task-delete:hover { color: #e8976a; }
+
+/* ── ADD FORM ── */
+.add-btn {
+  width: 100%;
+  background: transparent;
+  border: 1px dashed rgba(201,168,76,0.2);
+  border-radius: 8px;
+  padding: 9px;
+  color: var(--text-dim);
+  font-size: 13px;
+  font-family: 'Noto Sans TC', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 4px;
+}
+
+.add-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+
+.add-form {
+  display: none;
+  margin-top: 12px;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.add-form.open { display: flex; }
+
+.add-input {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 9px 12px;
+  color: var(--text);
+  font-size: 14px;
+  font-family: 'Noto Sans TC', sans-serif;
+  outline: none;
+  width: 100%;
+}
+
+.add-input:focus { border-color: var(--gold-dim); }
+.add-input::placeholder { color: var(--text-dim); }
+
+.add-row { display: flex; gap: 8px; }
+
+.btn-submit {
+  background: var(--gold-dim);
+  border: none;
+  border-radius: 6px;
+  padding: 9px 20px;
+  color: var(--bg);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'Noto Sans TC', sans-serif;
+}
+
+.btn-cancel {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 9px 14px;
+  color: var(--text-dim);
+  font-size: 13px;
+  cursor: pointer;
+  font-family: 'Noto Sans TC', sans-serif;
+}
+
+.reset-row {
+  text-align: center;
+  padding: 12px 28px 20px;
+}
+
+.reset-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 11px;
+  cursor: pointer;
+  font-family: 'Noto Sans TC', sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.reset-btn:hover { color: var(--gold-dim); }
+
+.empty-msg { font-size: 13px; color: var(--text-dim); padding: 6px 0; }
+
+/* ── 命運卡 ── */
+.fate-card {
+  margin: 16px 24px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.fate-card::before {
+  content: '🃏';
+  position: absolute;
+  right: 16px;
+  top: 12px;
+  font-size: 20px;
+  opacity: 0.3;
+}
+
+.fate-title {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.fate-quote {
+  font-size: 13px;
+  color: var(--text-dim);
+  font-style: italic;
+  margin-bottom: 14px;
+  line-height: 1.6;
+  border-left: 2px solid var(--gold-dim);
+  padding-left: 10px;
+}
+
+.fate-row {
+  display: flex;
+  gap: 10px;
+}
+
+.fate-item {
+  flex: 1;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.fate-yi {
+  background: rgba(126,200,160,0.07);
+  border: 1px solid rgba(126,200,160,0.2);
+}
+
+.fate-ji {
+  background: rgba(232,100,100,0.07);
+  border: 1px solid rgba(232,100,100,0.2);
+}
+
+.fate-item-label {
+  font-size: 10px;
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+  font-family: 'Cinzel', serif;
+}
+
+.fate-yi .fate-item-label { color: #7ec8a0; }
+.fate-ji .fate-item-label { color: #e87070; }
+
+.fate-item-text {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.fate-yi .fate-item-text { color: #a8dcc0; }
+.fate-ji .fate-item-text { color: #e8a0a0; }
+
+/* ── 時間占卜 ── */
+.time-card {
+  margin: 0 24px 16px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.time-card::before {
+  content: '🔮';
+  position: absolute;
+  right: 16px;
+  top: 12px;
+  font-size: 20px;
+  opacity: 0.3;
+}
+
+.time-title {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.time-hint {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+
+.time-draw-btn {
+  background: transparent;
+  border: 1px solid var(--gold-dim);
+  border-radius: 6px;
+  padding: 8px 18px;
+  color: var(--gold);
+  font-size: 12px;
+  font-family: 'Noto Sans TC', sans-serif;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+}
+
+.time-draw-btn:hover {
+  background: var(--gold-dim);
+  color: var(--bg);
+}
+
+.time-result {
+  display: none;
+  margin-top: 14px;
+  border-left: 2px solid var(--gold-dim);
+  padding-left: 12px;
+}
+
+.time-sec {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  color: var(--gold-dim);
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+}
+
+.time-text {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.7;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.time-result.show {
+  display: block;
+  animation: fadeIn 0.4s ease;
+}
+</style>
+</head>
+<body>
+
+<div class="cal-wrap">
+
+  <!-- 主標題 -->
+  <div style="text-align:center; padding: 28px 28px 20px; background: var(--bg3); border-bottom: 1px solid var(--border);">
+    <div style="font-family:'Cinzel',serif; font-size:26px; font-weight:700; color:var(--gold); letter-spacing:3px;">📅 FF14 農民曆</div>
+    <div style="font-size:12px; color:var(--text-dim); margin-top:6px; letter-spacing:2px;">光之農夫必備工具．這裡埋葬了一隻錯過活動截止日期和幾個億的小麻糬</div>
+  </div>
+
+  <!-- HEADER -->
+  <div class="cal-header">
+    <div>
+      <div class="cal-day-num" id="dayNum">--</div>
+      <div class="cal-month-row">
+        <div class="cal-month" id="monthYear">-- ----</div>
+      </div>
+    </div>
+    <div>
+      <div class="et-block">
+        <span class="et-label">Eorzea Time</span>
+        <div class="et-time" id="etTime">--:--</div>
+        <div class="et-phase" id="etPhase">--</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 今日提示 -->
+  <div class="alert-strip" id="alertStrip">
+    <div class="alert-dot"></div>
+    <div class="alert-text" id="alertText"></div>
+  </div>
+
+  <!-- 命運卡 -->
+  <div class="fate-card" id="fateCard">
+    <div class="fate-title">Today's Fate</div>
+    <div class="fate-quote" id="fateQuote"></div>
+    <div class="fate-row">
+      <div class="fate-item fate-yi">
+        <div class="fate-item-label">宜</div>
+        <div class="fate-item-text" id="fateYi"></div>
+      </div>
+      <div class="fate-item fate-ji">
+        <div class="fate-item-label">忌</div>
+        <div class="fate-item-text" id="fateJi"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 時間占卜 -->
+  <div class="time-card">
+    <div class="time-title">Time Oracle</div>
+    <div class="time-hint">靜心，在心中默想問題，按下占卜。</div>
+    <button class="time-draw-btn" onclick="drawTimeOracle()">開始占卜</button>
+    <div class="time-result" id="timeResult">
+      <div class="time-sec" id="timeSec"></div>
+      <div class="time-text" id="timeText"></div>
+    </div>
+  </div>
+
+  <!-- 理符計時器 -->
+  <div class="time-card" id="lifu-card">
+    <div class="time-title">LEVEQUEST TRACKER</div>
+    <div class="time-hint">輸入目前理符任務額度，計算何時達到上限。</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-top:10px;">
+      <span style="font-size:0.82rem;color:var(--text-dim);">目前額度</span>
+      <input id="lifu-input" type="number" min="0" max="100" placeholder="0~100"
+        style="width:72px;padding:5px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.9rem;text-align:center;outline:none;" />
+      <span style="font-size:0.82rem;color:var(--text-dim);">/ 100</span>
+      <button onclick="calcLifu()" style="padding:5px 12px;background:var(--gold-dim);border:none;border-radius:6px;color:var(--bg);font-size:0.82rem;cursor:pointer;">更新</button>
+      <button onclick="resetLifu()" style="padding:5px 12px;background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--text-dim);font-size:0.82rem;cursor:pointer;">重置</button>
+    </div>
+    <div id="lifu-result" style="margin-top:12px;display:none;">
+      <div id="lifu-countdown" style="font-size:1.5rem;font-family:'Cinzel',serif;color:var(--gold);letter-spacing:1px;margin-bottom:4px;"></div>
+      <div id="lifu-detail" style="font-size:0.78rem;color:var(--text-dim);line-height:1.8;"></div>
+    </div>
+    <div id="lifu-full" style="margin-top:10px;display:none;font-size:0.88rem;color:#7ec8a0;">✓ 額度已滿，記得去接任務！</div>
+  </div>
+
+  <!-- 每日 -->
+  <div class="section">
+    <div class="section-label">每日</div>
+    <div id="dailyList"></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 本週 -->
+  <div class="section">
+    <div class="section-label">本週</div>
+    <div id="weeklyList"></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 活動 -->
+  <div class="section">
+    <div class="section-label">官方活動</div>
+    <div id="eventList"></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 自訂 -->
+  <div class="section">
+    <div class="section-label">自訂提醒</div>
+    <div id="userList"></div>
+    <button class="add-btn" onclick="toggleAdd()">＋ 新增提醒</button>
+    <div class="add-form" id="addForm">
+      <input class="add-input" id="addInput" placeholder="提醒內容..." maxlength="60" />
+      <div class="add-row">
+        <button class="btn-submit" onclick="addUserTask()">新增</button>
+        <button class="btn-cancel" onclick="toggleAdd()">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="reset-row">
+    <button class="reset-btn" onclick="resetWeekly()">↺ 手動重置本週勾選</button>
+  </div>
+
+</div>
+
+<script src="et.js"></script>
+<script>
+// ── 資料 ──────────────────────────────────────────────
+
+const DAILY_TASKS = [
+  { id: 'd1', name: '檢查開心農場植物狀態（薩維奈圓蔥）' },
+];
+
+// weekDay: 2 = 週二, 5 = 週五, 6 = 週六
+const WEEKLY_TASKS = [
+  { id: 'w1', name: '天書奇談', weekDay: 2 },
+  { id: 'w2', name: '老主顧', weekDay: 2 },
+  { id: 'w3', name: '多瑪飛地刷新', weekDay: 2 },
+  { id: 'w4', name: '準備時尚品鑑所需裝備', weekDay: 2 },
+  { id: 'w5', name: '每週狩獵任務', weekDay: 2 },
+  { id: 'w6', name: '時尚品鑑評分', weekDay: 5 },
+  { id: 'w7', name: '仙人彩開獎', weekDay: 6 },
+];
+
+// end: null = 未定，顯示直到手動刪除
+const EVENTS = [
+  { id: 'e1', name: '莫古莫古大收集活動', start: '2026-10-20', end: '未知', note: '版本更新前結束' },
+  { id: 'e2', name: '星歌異聞', start: '2026-05-01', end: '2026-05-18', note: '5/1（五）14:00 ～ 5/18（一）14:00' },
+  { id: 'e3', name: '金碟嘉年華', start: '2026-05-29', end: '2026-06-22', note: '5/29（五）14:00 ～ 6/22（一）14:00' },
+  { id: 'e4', name: '紅蓮祭', start: '2026-08-07', end: '2026-08-24', note: '8/07（五）14:00 ～ 08/24（一）14:00' },
+  { id: 'e5', name: '新生祭', start: '2026-08-27', end: '2026-09-14', note: '8/27（四）14:00 ～ 09/14（一）14:00' },
+  { id: 'e5', name: '獻給英雄的夜曲活動', start: '2026-09-30', end: '2026-10-21', note: '9/30（三）14:00 ～ 10/21（三）14:00' },
+  { id: 'e6', name: '守護天節', start: '2026-10-23', end: '2026-11-09', note: '10/23（五）14:00 ～ 11/09（一）14:00' },
+];
+
+// ── 時間占卜資料 ─────────────────────────────────────
+const TIME_ORACLE = [
+  "【00】別急，再試一次就好。每個開始都值得被鼓勵。",
+  "【01】答案藏在心裡的光裡，不必遠尋。",
+  "【02】換個角度看，世界會比想像更寬闊。",
+  "【03】決定前，靜心片刻，問自己：這是內心真正的渴望嗎？",
+  "【04】接納每個不完美的自己。這份勇氣就是力量。",
+  "【05】放下過去，向新風景邁進。腳下的路正慢慢展開。",
+  "【06】停一停，深呼吸。時間在等你，世界也在等你。",
+  "【07】當準備好了，時機自然會到來。",
+  "【08】付出愛，也溫柔接受愛。這是生命最美的循環。",
+  "【09】放慢腳步，讓答案從心底浮現。",
+  "【10】別被混亂的念頭困住，靜下來，一切會清晰。",
+  "【11】好事正悄悄靠近，記得敞開心迎接。",
+  "【12】不合時宜的路，就勇敢轉身，新的方向會出現。",
+  "【13】等待的花終會開，別急，它正在醞釀美麗。",
+  "【14】多傾聽內心的聲音，答案早已在心裡發芽。",
+  "【15】走出去，世界比想像溫柔許多。",
+  "【16】選擇了，就專注走下去，每一步都值得。",
+  "【17】相信自己，正一步步走向光明。",
+  "【18】夢想不在遠方，而在當下的每個行動裡。",
+  "【19】有時繞路，是為了看到不同的風景。",
+  "【20】困難會過去，堅持的心會帶你走出去。",
+  "【21】平靜是最深的力量，讓心與自己連結。",
+  "【22】成功來自堅持、信念與真心。",
+  "【23】幸福已在路上，請帶著期待前行。",
+  "【24】釐清真正渴望的事物，心就不再徬徨。",
+  "【25】直覺是溫柔的引路人，請留意它的提醒。",
+  "【26】謹慎選擇，不隨波逐流，才能走出自己的路。",
+  "【27】放下控制的執念，信任流動中的安排。",
+  "【28】出於愛的願望，宇宙會回應與成全。",
+  "【29】保持平衡，讓身心靈在和諧中前行。",
+  "【30】自信不是張揚，而是相信自己能做到。",
+  "【31】黑夜之後，就是晨光，困難也有盡頭。",
+  "【32】真誠付出，最終都會回到生命裡。",
+  "【33】放鬆，時間會讓一切答案慢慢明朗。",
+  "【34】專注正念，正向的事物自然聚集而來。",
+  "【35】用幽默看待波折，笑聲也是一種智慧。",
+  "【36】放下不合時宜的執念，迎接新的可能。",
+  "【37】一念之間，就是跨越不可能的起點。",
+  "【38】耐心是最美的力量，等待會開出花。",
+  "【39】放手一廂情願的執著，選擇屬於自己的自由。",
+  "【40】新的機會正在路上，請張開心去迎接。",
+  "【41】別抗拒情緒，它是來幫助你理解自己的。",
+  "【42】持續專注，不急於立刻看見成果。",
+  "【43】停下來休息，是為了走得更遠。",
+  "【44】發光不是特權，只要準備好，夢想會靠近。",
+  "【45】時機未到，不妨靜心等待。路還長，慢慢走。",
+  "【46】承認、接納、學習，成長從此開始。",
+  "【47】勇敢改變，為生活添一抹新色彩。",
+  "【48】珍惜已有的，感謝生活裡的每份善意。",
+  "【49】喜事將至，請以喜悅之心迎接。",
+  "【50】多觀察、多學習，智慧來自多方的融合。",
+  "【51】平靜中生出的念頭，往往最真。",
+  "【52】一步步來，穩健是最好的捷徑。",
+  "【53】不放棄，困境終會過去，光明正在靠近。",
+  "【54】努力不會白費，成長就是最大的收穫。",
+  "【55】生命會以相同的溫度回應每一份付出。",
+  "【56】重要的不是結果，而是成為更好的自己。",
+  "【57】善意地接受幫助，也大方地付出溫暖。",
+  "【58】豐盛從感恩與分享開始，匱乏從抱怨開始。",
+  "【59】困難是一份禮物，只等被你打開。"
+];
+
+function drawTimeOracle() {
+  const sec = new Date().getSeconds();
+  const text = TIME_ORACLE[sec] || TIME_ORACLE[0];
+  document.getElementById('timeSec').textContent = '';
+  document.getElementById('timeText').textContent = text;
+  const result = document.getElementById('timeResult');
+  result.classList.remove('show');
+  void result.offsetWidth;
+  result.classList.add('show');
+}
+
+// ── 命運卡資料 ────────────────────────────────────────
+const FATE_CARDS = [
+  { quote: '穩扎穩打，別貪。', yi: '推主線', ji: '說「再打一場就睡」' },
+  { quote: '今日宜靜不宜動，心急吃不了熱豆腐。', yi: '整理倉庫', ji: '衝動買裝備' },
+  { quote: '你不是卡，是世界慢了。', yi: '採集挖礦', ji: '高難副本' },
+  { quote: '你以為你撿到，其實你被撿。', yi: '觀望市場', ji: '認真看市場板（會懷疑人生）' },
+  { quote: '今日隊友會很有想法，保持微笑。', yi: '練職業（那個你一直拖的）', ji: '打團本心態爆炸' },
+  { quote: '素材剛好差一個，這是宇宙的安排。', yi: '製作手工藝', ji: '急躁上頭' },
+  { quote: '今日魚會咬，但不是你想要的那條。', yi: '探索支線', ji: '強求掉落' },
+  { quote: '機制會看，但手不會動，接受自己。', yi: '看劇情不跳過', ji: '裝沒看到機制' },
+  { quote: '掉落率微幅上升（心理作用）。', yi: '仙人微彩', ji: '一抽再抽' },
+  { quote: '今日你就是版本答案。', yi: '幻化整理', ji: '裸奔' },
+  { quote: '第一把就出貨（理論上）。', yi: '小試手氣', ji: '無限排本' },
+  { quote: '市場板買什麼都賺（夢裡）。', yi: '跟NPC對話', ji: '與野隊爭辯' },
+  { quote: '積德之日，善有善報（也許）。', yi: '積德（幫新手）', ji: '跟陌生人吵架' },
+  { quote: '今日易遇神秘隊友，心存敬畏。', yi: '清背包（不然爆）', ji: '想當指揮（然後翻車）' },
+  { quote: '延遲＋心態雙重Debuff，小心應對。', yi: '安定心神', ji: '無限排本' },
+  { quote: '今日適合整理，不適合花錢。', yi: '整理倉庫（你真的該整理了）', ji: '抽獎上頭' },
+  { quote: 'NPC好感度+1（你自己覺得）。', yi: '跟NPC對話', ji: '亂點確認（會後悔）' },
+  { quote: '價格看起來合理，但其實不。', yi: '每日隨機', ji: '認真看市場板' },
+  { quote: '若執意連抽，後果自負。', yi: '推主線', ji: '一抽再抽' },
+  { quote: '買地前請深呼吸三次再決定。', yi: '探索支線', ji: '買地前再想一下（？）' },
+  { quote: '今日適合看劇情，世界可以等你。', yi: '看劇情不跳過', ji: '無限排本' },
+  { quote: '風平浪靜，內心不平靜。', yi: '製作手工藝', ji: '急躁上頭' },
+  { quote: '隊友有想法是好事（對他來說）。', yi: '安定心神', ji: '與野隊爭辯' },
+  { quote: '今日忌忘記吃飯，凡人需要補充能量。', yi: '每日隨機', ji: '忘記吃飯' },
+  { quote: '抽牌卡融合警告，此路不通。', yi: '幻化整理', ji: '抽牌卡融合' },
+];
+
+function renderFateCard() {
+  const dateStr = new Date().toDateString();
+  const idx = Math.abs(dateStr.split('').reduce((a,c) => a + c.charCodeAt(0), 0)) % FATE_CARDS.length;
+  const card = FATE_CARDS[idx];
+  document.getElementById('fateQuote').textContent = card.quote;
+  document.getElementById('fateYi').textContent = card.yi;
+  document.getElementById('fateJi').textContent = card.ji;
+}
+
+// ── 星期標籤 ─────────────────────────────────────────
+const WEEKDAYS_CN = ['日','一','二','三','四','五','六'];
+const MONTHS_CN = ['1','2','3','4','5','6','7','8','9','10','11','12'];
+
+// ── Eorzea Time ──────────────────────────────────────
+function etPhaseLabel(h) {
+  if (h >= 5 && h < 17) return '白天';
+  if (h >= 17 && h < 20) return '黃昏';
+  return '夜晚';
+}
+
+// ── localStorage helpers ──────────────────────────────
+function getStore(key, def) {
+  try { return JSON.parse(localStorage.getItem(key)) ?? def; } catch { return def; }
+}
+function setStore(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+
+// 週重置：每週二 16:00 台灣時間 (UTC+8) 為重置點
+function getWeekKey() {
+  const now = new Date();
+  // 調整到本週二 16:00 台灣時間
+  const day = now.getDay(); // 0=日 1=月 ... 6=六
+  const diff = (day >= 2) ? day - 2 : day + 5;
+  const tuesday = new Date(now);
+  tuesday.setDate(now.getDate() - diff);
+  tuesday.setHours(16, 0, 0, 0);
+  // 如果現在還沒到本週二16:00，取上週二
+  if (now < tuesday) tuesday.setDate(tuesday.getDate() - 7);
+  return 'week_' + tuesday.toISOString().slice(0, 10);
+}
+
+// ── 渲染日期 ──────────────────────────────────────────
+function renderDate() {
+  const now = new Date();
+  document.getElementById('dayNum').textContent = '星期' + WEEKDAYS_CN[now.getDay()];
+  document.getElementById('monthYear').textContent = now.getFullYear() + ' 年 ' + MONTHS_CN[now.getMonth()] + ' 月 ' + now.getDate() + ' 日';
+}
+
+// ── 渲染 ET ───────────────────────────────────────────
+function renderET() {
+  const { h, m } = getET();
+  document.getElementById('etTime').textContent =
+    String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+  document.getElementById('etPhase').textContent = etPhaseLabel(h);
+}
+
+// ── 今日提示 ──────────────────────────────────────────
+function renderAlert() {
+  const now = new Date();
+  const day = now.getDay();
+  const hour = now.getHours();
+  const alerts = [];
+
+  if (day === 2 && hour >= 16) alerts.push('每週二 16:00 已過 — 天書奇談、老主顧、狩獵任務已刷新！');
+  if (day === 5 && hour >= 16) alerts.push('每週五 16:00 已過 — 時尚品鑑評分開放中！');
+  if (day === 6 && hour >= 21) alerts.push('每週六 21:00 已過 — 仙人彩開獎啦，去看看中了沒！');
+  if (day === 2 && hour < 16) alerts.push('今天週二 16:00 前是最後機會！任務刷新倒數中！');
+
+  const strip = document.getElementById('alertStrip');
+  if (alerts.length) {
+    strip.style.display = 'flex';
+    document.getElementById('alertText').textContent = alerts[0];
+  } else {
+    strip.style.display = 'none';
+  }
+}
+
+// ── task element ─────────────────────────────────────
+function makeTask({ id, name, tag, done, onToggle, onDelete }) {
+  const div = document.createElement('div');
+  div.className = 'task-item' + (done ? ' done' : '');
+  div.innerHTML = `
+    <div class="task-check"><div class="checkmark"></div></div>
+    <div class="task-name">${name}</div>
+    ${tag ? `<span class="task-tag ${tag.cls}">${tag.label}</span>` : ''}
+    ${onDelete ? `<button class="task-delete" onclick="event.stopPropagation();deleteUser('${id}')">×</button>` : ''}
+  `;
+  div.addEventListener('click', onToggle);
+  return div;
+}
+
+// ── 渲染每日 ──────────────────────────────────────────
+function renderDaily() {
+  const done = getStore('daily_done_' + new Date().toDateString(), {});
+  const list = document.getElementById('dailyList');
+  list.innerHTML = '';
+  DAILY_TASKS.forEach(t => {
+    list.appendChild(makeTask({
+      id: t.id,
+      name: t.name,
+      tag: { cls: 'tag-daily', label: '每日' },
+      done: !!done[t.id],
+      onToggle: () => {
+        const d = getStore('daily_done_' + new Date().toDateString(), {});
+        d[t.id] = !d[t.id];
+        setStore('daily_done_' + new Date().toDateString(), d);
+        renderDaily();
+      }
+    }));
+  });
+}
+
+// ── 渲染每週 ──────────────────────────────────────────
+function renderWeekly() {
+  const weekKey = getWeekKey();
+  const done = getStore(weekKey, {});
+  const today = new Date().getDay();
+  const list = document.getElementById('weeklyList');
+  list.innerHTML = '';
+
+  // 顯示邏輯：已過週二16:00就全部顯示；未過就只顯示今天以前應出現的
+  const now = new Date();
+  const hour = now.getHours();
+
+  WEEKLY_TASKS.forEach(t => {
+    // 判斷這個任務今天是否「應該顯示」
+    // 規則：打過勾的整週不顯示（done）；沒打的繼續顯示
+    if (done[t.id]) return; // 已打勾，不顯示
+
+    // 任務解鎖日：那天的16:00之後
+    const unlockDay = t.weekDay;
+    let shouldShow = false;
+    if (today > unlockDay) shouldShow = true;
+    else if (today === unlockDay && hour >= 16) shouldShow = true;
+    else if (today < unlockDay) shouldShow = false; // 還沒到
+
+    // 例外：週六/日顯示尚未打勾的週五任務
+    if (t.weekDay === 5 && (today === 6 || today === 0)) shouldShow = true;
+
+    if (!shouldShow) return;
+
+    list.appendChild(makeTask({
+      id: t.id,
+      name: t.name,
+      tag: { cls: 'tag-weekly', label: '每週' },
+      done: false,
+      onToggle: () => {
+        const d = getStore(weekKey, {});
+        d[t.id] = true;
+        setStore(weekKey, d);
+        renderWeekly();
+      }
+    }));
+  });
+
+  if (!list.children.length) {
+    list.innerHTML = '<div class="empty-msg">本週任務全部完成！</div>';
+  }
+}
+
+// ── 渲染活動 ──────────────────────────────────────────
+function renderEvents() {
+  const now = new Date();
+  const list = document.getElementById('eventList');
+  list.innerHTML = '';
+
+  const active = EVENTS.filter(e => {
+    const start = new Date(e.start);
+    if (now < start) return false;
+    if (e.end) {
+      const end = new Date(e.end);
+      if (now > end) return false;
+    }
+    return true;
+  });
+
+  if (!active.length) {
+    list.innerHTML = '<div class="empty-msg">目前無進行中活動</div>';
+    return;
+  }
+
+  active.forEach(e => {
+    const div = document.createElement('div');
+    div.className = 'task-item';
+    div.style.cursor = 'default';
+    const endStr = e.end ? e.end + ' 結束' : (e.note || '未定');
+    div.innerHTML = `
+      <div class="task-name">${e.name}</div>
+      <span class="task-tag tag-event">${endStr}</span>
+    `;
+    list.appendChild(div);
+  });
+}
+
+// ── 自訂提醒 ──────────────────────────────────────────
+function renderUser() {
+  const tasks = getStore('user_tasks', []);
+  const done = getStore('user_done', {});
+  const list = document.getElementById('userList');
+  list.innerHTML = '';
+
+  tasks.forEach(t => {
+    list.appendChild(makeTask({
+      id: t.id,
+      name: t.name,
+      done: !!done[t.id],
+      onDelete: true,
+      onToggle: () => {
+        const d = getStore('user_done', {});
+        d[t.id] = !d[t.id];
+        setStore('user_done', d);
+        renderUser();
+      }
+    }));
+  });
+}
+
+function toggleAdd() {
+  const form = document.getElementById('addForm');
+  form.classList.toggle('open');
+  if (form.classList.contains('open')) document.getElementById('addInput').focus();
+}
+
+function addUserTask() {
+  const input = document.getElementById('addInput');
+  const name = input.value.trim();
+  if (!name) return;
+  const tasks = getStore('user_tasks', []);
+  tasks.push({ id: 'u' + now(), name });
+  setStore('user_tasks', tasks);
+  input.value = '';
+  toggleAdd();
+  renderUser();
+}
+
+function deleteUser(id) {
+  const tasks = getStore('user_tasks', []).filter(t => t.id !== id);
+  setStore('user_tasks', tasks);
+  const done = getStore('user_done', {});
+  delete done[id];
+  setStore('user_done', done);
+  renderUser();
+}
+
+document.getElementById('addInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addUserTask();
+  if (e.key === 'Escape') toggleAdd();
+});
+
+// ── 重置 ─────────────────────────────────────────────
+function resetWeekly() {
+  if (!confirm('確定要重置本週所有勾選？')) return;
+  setStore(getWeekKey(), {});
+  renderWeekly();
+}
+
+// ── 初始化 ────────────────────────────────────────────
+function init() {
+  renderDate();
+  renderET();
+  renderAlert();
+  renderFateCard();
+  renderDaily();
+  renderWeekly();
+  renderEvents();
+  renderUser();
+}
+
+init();
+setInterval(renderET, 5000);
+setInterval(renderAlert, 60000);
+
+// ── 理符計時器 ──
+const LIFU_KEY = 'lifu_tracker';
+
+function lifuNextRefill(from) {
+  // 找下一個 8:00 或 20:00
+  const d = new Date(from);
+  const candidates = [8, 20].map(h => {
+    const t = new Date(d);
+    t.setHours(h, 0, 0, 0);
+    if (t <= d) t.setDate(t.getDate() + 1);
+    return t;
+  });
+  return candidates.reduce((a, b) => a < b ? a : b);
+}
+
+function calcLifu() {
+  const input = document.getElementById('lifu-input');
+  const val = parseInt(input.value);
+  const resultEl = document.getElementById('lifu-result');
+  const fullEl = document.getElementById('lifu-full');
+
+  if (isNaN(val) || val < 0 || val > 100) {
+    resultEl.style.display = 'none';
+    fullEl.style.display = 'none';
+    return;
+  }
+
+  // 存 localStorage：額度 + 記錄時間
+  localStorage.setItem(LIFU_KEY, JSON.stringify({ val, savedAt: Date.now() }));
+
+  if (val >= 100) {
+    resultEl.style.display = 'none';
+    fullEl.style.display = 'block';
+    return;
+  }
+
+  fullEl.style.display = 'none';
+  resultEl.style.display = 'block';
+  renderLifuCountdown();
+}
+
+function renderLifuCountdown() {
+  const raw = localStorage.getItem(LIFU_KEY);
+  if (!raw) return;
+  const { val: savedVal, savedAt } = JSON.parse(raw);
+
+  const now = Date.now();
+  // 從存檔時間到現在，已經過了幾次補充
+  let current = savedVal;
+  let t = savedAt;
+  while (true) {
+    const next = lifuNextRefill(new Date(t)).getTime();
+    if (next > now) break;
+    current = Math.min(100, current + 3);
+    t = next + 1000;
+    if (current >= 100) break;
+  }
+
+  // 更新 input 顯示（靜默，不觸發 calcLifu）
+  const input = document.getElementById('lifu-input');
+  if (document.activeElement !== input) input.value = current;
+
+  if (current >= 100) {
+    document.getElementById('lifu-result').style.display = 'none';
+    document.getElementById('lifu-full').style.display = 'block';
+    return;
+  }
+
+  // 計算還需幾次補充
+  const needed = Math.ceil((100 - current) / 3);
+  let refillTime = new Date(t > now ? t : now);
+  const refillTimes = [];
+  let sim = current;
+  for (let i = 0; i < needed; i++) {
+    const next = lifuNextRefill(refillTime);
+    refillTimes.push(next);
+    sim = Math.min(100, sim + 3);
+    refillTime = new Date(next.getTime() + 1000);
+  }
+  const fullAt = refillTimes[refillTimes.length - 1];
+  const diff = fullAt - now;
+
+  const days = Math.floor(diff / 86400000);
+  const hrs  = Math.floor((diff % 86400000) / 3600000);
+  const mins = Math.floor((diff % 3600000) / 60000);
+  const secs = Math.floor((diff % 60000) / 1000);
+
+  let countdownStr = '';
+  if (days > 0) countdownStr += `${days} 天 `;
+  if (hrs > 0 || days > 0) countdownStr += `${hrs} 時 `;
+  countdownStr += `${mins} 分 ${secs} 秒`;
+
+  document.getElementById('lifu-countdown').textContent = countdownStr;
+
+  const fullAtStr = fullAt.toLocaleString('zh-TW', { month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' });
+  const nextRefill = lifuNextRefill(new Date(now > t ? now : t));
+  const nextStr = nextRefill.toLocaleString('zh-TW', { hour:'2-digit', minute:'2-digit' });
+
+  document.getElementById('lifu-detail').innerHTML =
+    `目前額度 <strong>${current}</strong> / 100　還需補充 <strong>${needed}</strong> 次（每次 +3）<br>` +
+    `下次補充：${nextStr}　預計滿額：${fullAtStr}`;
+}
+
+function resetLifu() {
+  localStorage.removeItem(LIFU_KEY);
+  document.getElementById('lifu-input').value = '';
+  document.getElementById('lifu-result').style.display = 'none';
+  document.getElementById('lifu-full').style.display = 'none';
+}
+
+// 頁面載入時還原
+(function initLifu() {
+  const raw = localStorage.getItem(LIFU_KEY);
+  if (!raw) return;
+  const { val } = JSON.parse(raw);
+  document.getElementById('lifu-input').value = val;
+  // 直接渲染，不重存 localStorage
+  document.getElementById('lifu-result').style.display = val < 100 ? 'block' : 'none';
+  document.getElementById('lifu-full').style.display = val >= 100 ? 'block' : 'none';
+  if (val < 100) renderLifuCountdown();
+})();
+
+// 每秒更新倒數
+setInterval(() => {
+  const raw = localStorage.getItem(LIFU_KEY);
+  if (!raw) return;
+  const { val } = JSON.parse(raw);
+  if (val < 100) renderLifuCountdown();
+}, 1000);
+</script>
+</body>
+</html>
